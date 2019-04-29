@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>邀请名单</title>
+    <link rel="stylesheet" href="../../../public/stylesheets/bootstrap.css">
+    <script src="../../../public/javascripts/vue.min.js"></script>
+    <script src="../../../public/javascripts/vue-resource.min.js"></script>
+
+
+</head>
+
+<style>
+    li {
+        float: left;
+    }
+    body {
+        padding-top: 50px;
+    }
+</style>
+<body ng-app="nameList" >
+<div id="div1" ng-controller="MainController">
+    <div class="container" style="background-color:  #edbc80">
+        <div class="row">
+            <center><h1>邀请名单</h1></center>
+        </div>
+        <div class="row" style="padding-top: 30px;">
+            <div class="col-xs-3">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                      姓名
+                  </span>
+                    <input type="text" v-model="name"  class="form-control" placeholder="输入姓名">
+                </div>
+            </div>
+            <div class="col-xs-7">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                      电话
+                  </span>
+                    <input type="text" v-model="phone"  class="form-control" placeholder="输入电话">
+                </div>
+            </div>
+            <div class="col-xs-2">
+                <button @click="add()"  class="btn btn-success">邀请</button>
+                <span id="sp1"></span>
+            </div>
+        </div>
+        <div class="row" style="padding: 20px;">
+            <button class="btn btn-success btn-xs "  @click="getData()">显示全部</button>
+            <button class="btn btn-success btn-xs "  @click="getData('邀请中')">显示邀请中</button>
+            <button class="btn btn-success btn-xs "  @click="getData('已邀请')">显示已接受</button>
+            <button class="btn btn-success btn-xs " @click="getData('已拒绝')">显示已拒绝</button>
+            <button class="btn btn-success btn-xs " @click="add()"  >保存信息</button>
+        </div>
+        <div>
+            <div class="row" style="padding: 15px;">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>编号</th>
+                        <th>嘉宾姓名</th>
+                        <th>嘉宾电话</th>
+                        <th>受邀状态</th>
+                        <th>操作</th>
+                    </tr>
+                    <tr v-for="item in works">
+                        <td>{{item.id}}</td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.phone}}</td>
+                        <td>{{item.status}}</td>
+                        <td>
+                            <a v-if="item.status=='邀请中'" :href="'${'/accept'}' + '?id=' + item.id"  class="btn btn-xs btn-success">接受邀请</a>
+                            <a v-if="item.status=='邀请中'" :href="'${'/reject'}' + '?id=' + item.id"  class="btn btn-xs btn-danger">拒绝邀请</a>
+                            <a  class="btn btn-xs btn-default" :href="'${'/delete'}' + '?id=' + item.id">删除</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  new Vue({
+      el:'#div1',
+      data:{
+          works:[],
+          name:'',
+          phone:'',
+          status:'',
+      },
+      created:function () {
+          this.getData()
+      },
+      methods:{
+          getData:function (val) {
+              var self=this;
+              this.$http.post("/list",{
+                  status:val,
+              }).then(function (response) {
+                  this.works=response.body;
+              })
+          },
+          add:function () {
+              var self=this;
+              this.$http.post("/add",{
+                  name:this.name,
+                  phone:this.phone
+              }).then(function (response) {
+                  window.location.reload();
+                  document.getElementById("sp1").innerText="邀请成功";
+              })
+          },
+      }
+
+  })
+</script>
+</body>
+</html>
